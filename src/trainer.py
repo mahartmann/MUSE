@@ -103,6 +103,24 @@ class Trainer(object):
         self.dis_optimizer.step()
         clip_parameters(self.discriminator, self.params.dis_clip_weights)
 
+    def compute_loss(self):
+        """
+        Compute the discriminator loss.
+        """
+        #self.discriminator.train()
+
+        # loss
+        x, y = self.get_dis_xy(volatile=True)
+        preds = self.discriminator(Variable(x.data))
+        loss = F.binary_cross_entropy(preds, y)
+
+        # check NaN
+        if (loss != loss).data.any():
+            logger.error("NaN detected (discriminator)")
+            exit()
+
+
+
     def mapping_step(self, stats):
         """
         Fooling discriminator training step.

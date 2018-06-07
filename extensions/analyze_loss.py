@@ -45,6 +45,13 @@ logger = initialize_exp(params)
 src_emb, tgt_emb, mapping, _ = build_model(params, False)
 trainer = Trainer(src_emb, tgt_emb, mapping, None, params)
 trainer.load_mapping(mapping_path=params.mapping)
+
+
+# compute the discriminator loss
+for n_iter in range(0, params.epoch_size, params.batch_size):
+    for _ in range(params.dis_steps):
+        trainer.compute_loss()
+
 evaluator = Evaluator(trainer)
 
 # run evaluations
