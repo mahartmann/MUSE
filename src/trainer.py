@@ -240,6 +240,19 @@ class Trainer(object):
         assert to_reload.size() == W.size()
         W.copy_(to_reload.type_as(W))
 
+    def load_mapping(self, mapping_path):
+        """
+        Load a given mapping.
+        """
+        logger.info('* Reloading the best model from %s ...' % mapping_path)
+        # reload the model
+        assert os.path.isfile(mapping_path)
+        to_reload = torch.from_numpy(torch.load(mapping_path))
+        W = self.mapping.weight.data
+        assert to_reload.size() == W.size()
+        W.copy_(to_reload.type_as(W))
+
+
     def export(self):
         """
         Export embeddings.
