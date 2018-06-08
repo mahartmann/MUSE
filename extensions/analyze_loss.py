@@ -72,11 +72,9 @@ trainer.load_mapping(mapping_path=params.mapping)
 
 
 # compute the discriminator loss
-
-for n_iter in range(0, params.epoch_size, params.batch_size):
-    for _ in range(params.dis_steps):
-        loss = trainer.compute_loss()
-        print(loss)
+for n_iter in range(0, 100, params.batch_size):
+    loss = trainer.compute_loss()
+    print(loss)
 
 evaluator = Evaluator(trainer)
 
