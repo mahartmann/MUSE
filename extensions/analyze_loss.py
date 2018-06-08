@@ -23,6 +23,7 @@ parser.add_argument("--src_lang", type=str, default="", help="Source language")
 parser.add_argument("--tgt_lang", type=str, default="", help="Target language")
 parser.add_argument("--dico_eval", type=str, default="default", help="Path to evaluation dictionary")
 # reload pre-trained embeddings
+
 parser.add_argument("--src_emb", type=str, default="", help="Reload source embeddings")
 parser.add_argument("--tgt_emb", type=str, default="", help="Reload target embeddings")
 parser.add_argument("--max_vocab", type=int, default=200000, help="Maximum vocabulary size (-1 to disable)")
@@ -30,6 +31,28 @@ parser.add_argument("--emb_dim", type=int, default=300, help="Embedding dimensio
 parser.add_argument("--normalize_embeddings", type=str, default="", help="Normalize embeddings before training")
 parser.add_argument("--mapping", type=str, default="", help="Path to the mapping to be loaded")
 
+
+# training adversarial
+parser.add_argument("--adversarial", type=bool_flag, default=True, help="Use adversarial training")
+parser.add_argument("--n_epochs", type=int, default=5, help="Number of epochs")
+parser.add_argument("--epoch_size", type=int, default=1000000, help="Iterations per epoch")
+parser.add_argument("--batch_size", type=int, default=32, help="Batch size")
+parser.add_argument("--map_optimizer", type=str, default="sgd,lr=0.1", help="Mapping optimizer")
+parser.add_argument("--dis_optimizer", type=str, default="sgd,lr=0.1", help="Discriminator optimizer")
+parser.add_argument("--lr_decay", type=float, default=0.98, help="Learning rate decay (SGD only)")
+parser.add_argument("--min_lr", type=float, default=1e-6, help="Minimum learning rate (SGD only)")
+parser.add_argument("--lr_shrink", type=float, default=0.5, help="Shrink the learning rate if the validation metric decreases (1 to disable)")
+
+
+parser.add_argument("--dis_layers", type=int, default=2, help="Discriminator layers")
+parser.add_argument("--dis_hid_dim", type=int, default=2048, help="Discriminator hidden layer dimensions")
+parser.add_argument("--dis_dropout", type=float, default=0., help="Discriminator dropout")
+parser.add_argument("--dis_input_dropout", type=float, default=0.1, help="Discriminator input dropout")
+parser.add_argument("--dis_steps", type=int, default=5, help="Discriminator steps")
+parser.add_argument("--dis_lambda", type=float, default=1, help="Discriminator loss feedback coefficient")
+parser.add_argument("--dis_most_frequent", type=int, default=75000, help="Select embeddings of the k most frequent words for discrimination (0 to disable)")
+parser.add_argument("--dis_smooth", type=float, default=0.1, help="Discriminator smooth predictions")
+parser.add_argument("--dis_clip_weights", type=float, default=0, help="Clip discriminator weights (0 to disable)")
 
 # parse parameters
 params = parser.parse_args()
@@ -42,15 +65,18 @@ assert params.dico_eval == 'default' or os.path.isfile(params.dico_eval)
 
 # build logger / model / trainer / evaluator
 logger = initialize_exp(params)
-src_emb, tgt_emb, mapping, _ = build_model(params, False)
-trainer = Trainer(src_emb, tgt_emb, mapping, None, params)
+src_emb, tgt_emb, mapping, discriminator = build_model(params, True)
+
+trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
 trainer.load_mapping(mapping_path=params.mapping)
 
 
 # compute the discriminator loss
+
 for n_iter in range(0, params.epoch_size, params.batch_size):
     for _ in range(params.dis_steps):
-        trainer.compute_loss()
+        loss = trainer.compute_loss()
+        print(loss)
 
 evaluator = Evaluator(trainer)
 

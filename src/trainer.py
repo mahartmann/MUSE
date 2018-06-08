@@ -118,6 +118,7 @@ class Trainer(object):
         if (loss != loss).data.any():
             logger.error("NaN detected (discriminator)")
             exit()
+        return loss
 
 
 
