@@ -179,6 +179,9 @@ if params.n_refinement > 0:
         trainer.save_best(to_log, VALIDATION_METRIC)
         logger.info('End of refinement iteration %i.\n\n' % n_iter)
 
+        # saving the discriminator parameters
+        trainer.discriminator.save(trainer.params.exp_path)
+
 
 # export embeddings
 if params.export:

@@ -37,6 +37,12 @@ class Discriminator(nn.Module):
         assert x.dim() == 2 and x.size(1) == self.emb_dim
         return self.layers(x).view(-1)
 
+    def save(self, path):
+        torch.save(self.state_dict(), '{}/discriminator.pth'.format(path))
+
+    def load(self, path):
+        self.load_state_dict(torch.load('{}/discriminator.pth'.format(path)))
+
 
 def build_model(params, with_dis):
     """

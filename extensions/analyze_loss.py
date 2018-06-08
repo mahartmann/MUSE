@@ -66,7 +66,7 @@ assert params.dico_eval == 'default' or os.path.isfile(params.dico_eval)
 # build logger / model / trainer / evaluator
 logger = initialize_exp(params)
 src_emb, tgt_emb, mapping, discriminator = build_model(params, True)
-
+discriminator.load()
 trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
 trainer.load_mapping(mapping_path=params.mapping)
 
