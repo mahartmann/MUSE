@@ -53,6 +53,7 @@ parser.add_argument("--dis_lambda", type=float, default=1, help="Discriminator l
 parser.add_argument("--dis_most_frequent", type=int, default=75000, help="Select embeddings of the k most frequent words for discrimination (0 to disable)")
 parser.add_argument("--dis_smooth", type=float, default=0.1, help="Discriminator smooth predictions")
 parser.add_argument("--dis_clip_weights", type=float, default=0, help="Clip discriminator weights (0 to disable)")
+parser.add_argument("--discriminator", type=str, default="", help="Path to the discriminator parameters to be loaded")
 
 # parse parameters
 params = parser.parse_args()
@@ -66,7 +67,7 @@ assert params.dico_eval == 'default' or os.path.isfile(params.dico_eval)
 # build logger / model / trainer / evaluator
 logger = initialize_exp(params)
 src_emb, tgt_emb, mapping, discriminator = build_model(params, True)
-discriminator.load()
+discriminator.load(params.discriminator)
 trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
 trainer.load_mapping(mapping_path=params.mapping)
 
