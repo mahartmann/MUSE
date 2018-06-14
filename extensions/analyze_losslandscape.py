@@ -88,7 +88,8 @@ trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
 
 # Iteratively modify the mapping from initial mapping to target mapping by linear interpolation
 # track the discriminator loss for all different mappings that ly between initial and target mapping
-for alpha in range(0, 1, params.interpolation_step_size):
+for alpha in range(0, 10):
+    alpha = alpha*params.interpolation_step_size
     interpolated_mapping = oned_linear_interpolation(params.mapping_i, params.mapping_f, alpha)
     trainer.load_mapping(mapping_path=interpolated_mapping)
 
