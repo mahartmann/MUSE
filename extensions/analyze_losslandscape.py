@@ -6,6 +6,7 @@ import os
 import argparse
 from collections import OrderedDict
 import torch
+import numpy as np
 
 from src.utils import bool_flag, initialize_exp
 from src.models import build_model
@@ -103,18 +104,20 @@ for alpha in range(0, 10):
     # compute the discriminator loss
     logger.info('----> COMPUTING DISCRIMINATOR LOSS <----\n\n')
     logger.info('alpha={}'.format(alpha))
+    losses = []
     for n_iter in range(0, 100, params.batch_size):
         loss = trainer.compute_loss()
-        logger.info('{}\n'.format(loss))
+        losses.append(loss)
+    logger.info('{}\n'.format(np.mean(losses)))
 
-evaluator = Evaluator(trainer)
+    evaluator = Evaluator(trainer)
 
-# run evaluations
-to_log = OrderedDict({'n_iter': 0})
-evaluator.monolingual_wordsim(to_log)
-# evaluator.monolingual_wordanalogy(to_log)
-if params.tgt_lang:
-    evaluator.crosslingual_wordsim(to_log)
-    evaluator.word_translation(to_log)
-    #evaluator.sent_translation(to_log)
-    evaluator.dist_mean_cosine(to_log)
+    # run evaluations
+    to_log = OrderedDict({'n_iter': 0})
+    evaluator.monolingual_wordsim(to_log)
+    # evaluator.monolingual_wordanalogy(to_log)
+    if params.tgt_lang:
+        evaluator.crosslingual_wordsim(to_log)
+        evaluator.word_translation(to_log)
+        #evaluator.sent_translation(to_log)
+        evaluator.dist_mean_cosine(to_log)
