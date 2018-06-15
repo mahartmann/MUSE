@@ -6,8 +6,8 @@
 #
 
 import torch
-from torch import nn
 
+from torch import nn
 from .utils import load_embeddings, normalize_embeddings
 
 

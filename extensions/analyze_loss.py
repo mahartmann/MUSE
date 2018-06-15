@@ -69,7 +69,7 @@ logger = initialize_exp(params)
 src_emb, tgt_emb, mapping, discriminator = build_model(params, True)
 discriminator.load(params.discriminator)
 trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
-trainer.load_mapping(mapping_path=params.mapping)
+trainer.load_mapping_from_disk(mapping_path=params.mapping)
 
 
 # compute the discriminator loss

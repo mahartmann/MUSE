@@ -5,6 +5,7 @@ provides methods to load a mapping between embeddings an compute the loss of the
 import os
 import argparse
 from collections import OrderedDict
+import torch
 
 from src.utils import bool_flag, initialize_exp
 from src.models import build_model
@@ -14,13 +15,17 @@ from src.evaluation import Evaluator
 
 
 
-def oned_linear_interpolation(p_init, p_final, alpha):
+def oned_linear_interpolation(m_init, m_final, alpha):
     '''
     computes linear interpolation of the parameters
     :return:
     '''
-    return (1-alpha)*p_init + alpha * p_final
-
+    # get the weights of the paramter tensors as numpy arrays
+    p_init = m_init.weight.detach().numpy()
+    p_final = m_final.weight.detach().numpy()
+    p_interpol = (1-alpha)*p_init + alpha * p_final
+    # generate tensor
+    return torch.from_numpy(p_interpol)
 
 
 # main
@@ -91,7 +96,7 @@ trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
 for alpha in range(0, 10):
     alpha = alpha*params.interpolation_step_size
     interpolated_mapping = oned_linear_interpolation(params.mapping_i, params.mapping_f, alpha)
-    trainer.load_mapping(mapping_path=interpolated_mapping)
+    trainer.set_mapping_weights(weights=interpolated_mapping)
 
     # compute the discriminator loss
     logger.info('----> COMPUTING DISCRIMINATOR LOSS <----\n\n')

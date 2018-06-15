@@ -259,17 +259,25 @@ class Trainer(object):
         assert to_reload.size() == W.size()
         W.copy_(to_reload.type_as(W))
 
-    def load_mapping(self, mapping_path):
+    def load_mapping_from_disk(self, mapping_path):
         """
         Load a given mapping.
         """
-        logger.info('* Reloading the best model from %s ...' % mapping_path)
+        logger.info('* Loading mapping from %s ...' % mapping_path)
         # reload the model
         assert os.path.isfile(mapping_path)
         to_reload = torch.from_numpy(torch.load(mapping_path))
         W = self.mapping.weight.data
         assert to_reload.size() == W.size()
         W.copy_(to_reload.type_as(W))
+
+    def set_mapping_weights(self, weights):
+        """
+        Set the weights for the mapping
+        """
+        W = self.mapping.weight.data
+        assert weights.size() == W.size()
+        W.copy_(weights.type_as(W))
 
 
     def export(self):
