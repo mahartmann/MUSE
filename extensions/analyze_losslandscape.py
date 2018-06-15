@@ -21,8 +21,8 @@ def oned_linear_interpolation(m_init, m_final, alpha):
     :return:
     '''
     # get the weights of the paramter tensors as numpy arrays
-    p_init = m_init.weight.detach().numpy()
-    p_final = m_final.weight.detach().numpy()
+    p_init = m_init.numpy()
+    p_final = m_final.numpy()
     p_interpol = (1-alpha)*p_init + alpha * p_final
     # generate tensor
     return torch.from_numpy(p_interpol)
@@ -93,9 +93,11 @@ trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
 
 # Iteratively modify the mapping from initial mapping to target mapping by linear interpolation
 # track the discriminator loss for all different mappings that ly between initial and target mapping
+mapping_i = torch.from_numpy(torch.load(params.mapping_i))
+mapping_f = torch.from_numpy(torch.load(params.mapping_f))
 for alpha in range(0, 10):
     alpha = alpha*params.interpolation_step_size
-    interpolated_mapping = oned_linear_interpolation(params.mapping_i, params.mapping_f, alpha)
+    interpolated_mapping = oned_linear_interpolation(mapping_i, mapping_f, alpha)
     trainer.set_mapping_weights(weights=interpolated_mapping)
 
     # compute the discriminator loss
