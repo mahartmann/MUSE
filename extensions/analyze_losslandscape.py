@@ -96,8 +96,7 @@ trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
 # track the discriminator loss for all different mappings that ly between initial and target mapping
 mapping_i = torch.from_numpy(torch.load(params.mapping_i))
 mapping_f = torch.from_numpy(torch.load(params.mapping_f))
-for alpha in range(0, 10):
-    alpha = alpha*params.interpolation_step_size
+for alpha in np.arange(0, 1+params.interpolation_step_size, params.interpolation_step_size):
     interpolated_mapping = oned_linear_interpolation(mapping_i, mapping_f, alpha)
     trainer.set_mapping_weights(weights=interpolated_mapping)
 
@@ -105,10 +104,11 @@ for alpha in range(0, 10):
     logger.info('----> COMPUTING DISCRIMINATOR LOSS <----\n\n')
     logger.info('alpha={}'.format(alpha))
     losses = []
-    for n_iter in range(0, 100, params.batch_size):
+    for n_iter in range(0, params.epoch_size, params.batch_size):
         loss = trainer.compute_loss()
-        losses.append(loss)
-    logger.info('{}\n'.format(np.mean(losses)))
+        losses.append(loss.cpu().detach().numpy())
+        print(losses)
+    logger.info('Discriminator loss: {}\n'.format(np.mean(losses)))
 
     evaluator = Evaluator(trainer)
 
