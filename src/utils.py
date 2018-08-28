@@ -16,6 +16,7 @@ import argparse
 import subprocess
 import numpy as np
 import torch
+import json
 from torch import optim
 from logging import getLogger
 
@@ -66,6 +67,7 @@ def initialize_exp(params):
     logger.info('\n'.join('%s: %s' % (k, str(v)) for k, v in sorted(dict(vars(params)).items())))
     logger.info('The experiment will be stored in %s' % params.exp_path)
     return logger
+
 
 
 def load_fasttext_model(path):
@@ -260,6 +262,19 @@ def clip_parameters(model, clip):
         for x in model.parameters():
             x.data.clamp_(-clip, clip)
 
+def get_weights_and_gradients(model):
+    """
+    return a mapping from param name to weight and from param name to gradient for all the parameters of the model.
+    """
+    grads = {}
+    weights = {}
+    for name, param in model.named_parameters():
+        if param.requires_grad:
+            grads[name] = param.grad
+            weights[name] = param.data
+    return weights, grads
+
+
 
 def read_txt_embeddings(params, source, full_vocab):
     """
@@ -432,8 +447,8 @@ def export_embeddings(src_emb, tgt_emb, params):
 
     # text file
     if params.export == "txt":
-        src_path = os.path.join(params.exp_path, 'vectors-%s.txt' % params.src_lang)
-        tgt_path = os.path.join(params.exp_path, 'vectors-%s.txt' % params.tgt_lang)
+        src_path = os.path.join(params.exp_path, 'vectors_src_%s.txt' % params.src_lang)
+        tgt_path = os.path.join(params.exp_path, 'vectors_tgt_%s.txt' % params.tgt_lang)
         # source embeddings
         logger.info('Writing source embeddings to %s ...' % src_path)
         with io.open(src_path, 'w', encoding='utf-8') as f:
@@ -449,9 +464,15 @@ def export_embeddings(src_emb, tgt_emb, params):
 
     # PyTorch file
     if params.export == "pth":
-        src_path = os.path.join(params.exp_path, 'vectors-%s.pth' % params.src_lang)
-        tgt_path = os.path.join(params.exp_path, 'vectors-%s.pth' % params.tgt_lang)
+        src_path = os.path.join(params.exp_path, 'vectors_src_%s.pth' % params.src_lang)
+        tgt_path = os.path.join(params.exp_path, 'vectors_tgt_%s.pth' % params.tgt_lang)
         logger.info('Writing source embeddings to %s ...' % src_path)
         torch.save({'dico': params.src_dico, 'vectors': src_emb}, src_path)
         logger.info('Writing target embeddings to %s ...' % tgt_path)
         torch.save({'dico': params.tgt_dico, 'vectors': tgt_emb}, tgt_path)
+
+
+def write_json(fname, data):
+    with open(fname, 'w') as outfile:
+        json.dump(data, outfile)
+    outfile.close

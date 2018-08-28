@@ -100,6 +100,7 @@ class Trainer(object):
         # optim
         self.dis_optimizer.zero_grad()
         loss.backward()
+
         self.dis_optimizer.step()
         clip_parameters(self.discriminator, self.params.dis_clip_weights)
 
@@ -119,6 +120,8 @@ class Trainer(object):
             logger.error("NaN detected (discriminator)")
             exit()
         return loss
+
+
 
 
 
