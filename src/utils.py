@@ -502,7 +502,7 @@ def write_json(fname, data):
     outfile.close()
 
 
-def add_gaussian_noise_to_inputs(params, inputs):
+def add_gaussian_noise_to_inputs(inputs, params):
     """
     draws from normal distribution with mean 0 and variance 1
     :param inputs:
