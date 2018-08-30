@@ -72,6 +72,8 @@ parser.add_argument("--dis_optimizer", type=str, default="sgd,lr=0.1", help="Dis
 parser.add_argument("--lr_decay", type=float, default=0.98, help="Learning rate decay (SGD only)")
 parser.add_argument("--min_lr", type=float, default=1e-6, help="Minimum learning rate (SGD only)")
 parser.add_argument("--lr_shrink", type=float, default=0.5, help="Shrink the learning rate if the validation metric decreases (1 to disable)")
+parser.add_argument("--noise", type=float, default=0, help="Variance of the noise to be added to the inputs (0 to disable)")
+
 
 
 parser.add_argument("--dis_layers", type=int, default=2, help="Discriminator layers")
