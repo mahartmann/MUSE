@@ -516,14 +516,7 @@ def add_gaussian_noise_to_inputs(inputs, params):
 
 
 
-def sample_from_multivariate_gaussian(mean, var=1):
-    """
-    sample independent parameters in a parameterr matrix from a multivariate gaussian centered on mean
-    :param mean: the mean of the gaussian
-    :param var: the variance of the gaussian. default 1
-    :return:
-    """
-    return np.random.multivariate_normal(mean.ravel(), np.identity(mean.ravel().shape[0]) * var).reshape((mean.shape))
+
 
 
 def to_sparse(x):

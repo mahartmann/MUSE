@@ -29,6 +29,16 @@ def oned_linear_interpolation(m_init, m_final, alpha):
     return torch.from_numpy(p_interpol)
 
 
+def sample_from_multivariate_gaussian(mean, var=1):
+    """
+    sample independent parameters in a parameterr matrix from a multivariate gaussian centered on mean
+    :param mean: the mean of the gaussian
+    :param var: the variance of the gaussian. default 1
+    :return:
+    """
+    return np.random.multivariate_normal(mean.ravel(), np.identity(mean.ravel().shape[0]) * var).reshape((mean.shape))
+
+
 # main
 parser = argparse.ArgumentParser(description='Evaluation')
 parser.add_argument("--verbose", type=int, default=2, help="Verbose level (2:debug, 1:info, 0:warning)")
@@ -76,6 +86,9 @@ parser.add_argument("--dis_clip_weights", type=float, default=0, help="Clip disc
 parser.add_argument("--discriminator", type=str, default="", help="Path to the discriminator parameters to be loaded")
 
 parser.add_argument("--interpolation_step_size", type=float, default=0.1, help="The stepsize for sampling mappings along the path from initial to target mapping")
+parser.add_argument("--num_samples", type=int, default=0, help="The number of samples of mapping parameters drawn at each interpolation step. If 0 only the line segment is considered.")
+parser.add_argument("--var", type=float, default=1., help="The variance of the gaussian distribution from which the samples are drawn.")
+
 
 # parse parameters
 params = parser.parse_args()
@@ -98,17 +111,24 @@ mapping_i = torch.from_numpy(torch.load(params.mapping_i))
 mapping_f = torch.from_numpy(torch.load(params.mapping_f))
 for alpha in np.arange(0, 1+params.interpolation_step_size, params.interpolation_step_size):
     interpolated_mapping = oned_linear_interpolation(mapping_i, mapping_f, alpha)
-    trainer.set_mapping_weights(weights=interpolated_mapping)
 
-    # compute the discriminator loss
-    logger.info('----> COMPUTING DISCRIMINATOR LOSS <----\n\n')
-    logger.info('alpha={}'.format(alpha))
-    losses = []
-    for n_iter in range(0, params.epoch_size, params.batch_size):
-        loss = trainer.compute_loss()
-        losses.append(loss.cpu().detach().numpy())
-        print(losses)
-    logger.info('Discriminator loss: {}\n'.format(np.mean(losses)))
+    mappings = [interpolated_mapping]
+
+    for n in range(params.num_sample):
+        mappings.append(sample_from_multivariate_gaussian(interpolated_mapping, var=params.var))
+
+    for m, sampled_mapping in enumerate(mappings):
+        trainer.set_mapping_weights(weights=sampled_mapping)
+
+        # compute the discriminator loss
+        logger.info('----> COMPUTING DISCRIMINATOR LOSS <----\n\n')
+        logger.info('alpha={}, m={}'.format(alpha,m))
+        losses = []
+        for n_iter in range(0, params.epoch_size, params.batch_size):
+            loss = trainer.compute_loss()
+            losses.append(loss.cpu().detach().numpy())
+            print(losses)
+        logger.info('Discriminator loss {}: {}\n'.format(m, np.mean(losses)))
 
     evaluator = Evaluator(trainer)
 
