@@ -130,7 +130,7 @@ for alpha in np.arange(0, 1+params.interpolation_step_size, params.interpolation
 
     mappings = [interpolated_mapping]
 
-    for n in range(params.num_sample):
+    for n in range(params.num_samples):
         mappings.append(sample_from_multivariate_gaussian(interpolated_mapping, var=params.var))
 
     for m, sampled_mapping in enumerate(mappings):
