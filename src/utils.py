@@ -472,7 +472,43 @@ def export_embeddings(src_emb, tgt_emb, params):
         torch.save({'dico': params.tgt_dico, 'vectors': tgt_emb}, tgt_path)
 
 
+
+def export_noisy_embeddings(src_emb, params):
+    """
+    Export the embeddings with added noise to a text or a PyTorch file.
+    """
+    assert params.export in ["txt", "pth"]
+
+    # text file
+    if params.export == "txt":
+        src_path = os.path.join(params.exp_path, 'vectors_src_{}_noise_{}.txt'.format(params.src_lang, params.noise))
+        # source embeddings
+        logger.info('Writing source embeddings to %s ...' % src_path)
+        with io.open(src_path, 'w', encoding='utf-8') as f:
+            f.write(u"%i %i\n" % src_emb.size())
+            for i in range(len(params.src_dico)):
+                f.write(u"%s %s\n" % (params.src_dico[i], " ".join('%.5f' % x for x in src_emb[i])))
+
+    # PyTorch file
+    if params.export == "pth":
+        src_path = os.path.join(params.exp_path, 'vectors_src_{}_noise_{}.pth'.format(params.src_lang, params.noise))
+        logger.info('Writing source embeddings to %s ...' % src_path)
+        torch.save({'dico': params.src_dico, 'vectors': src_emb}, src_path)
+
+
 def write_json(fname, data):
     with open(fname, 'w') as outfile:
         json.dump(data, outfile)
-    outfile.close
+    outfile.close()
+
+
+def add_random_noise_to_inputs(inputs):
+    noise = torch.randn(inputs.size())
+    return inputs + noise.float()
+
+def add_gaussian_noise_to_inputs(inputs, std_dev):
+    noise = np.random.normal(loc=inputs.data, scale=std_dev, size=np.shape(inputs.size()))
+    return inputs + noise.float()
+
+
+

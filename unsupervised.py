@@ -13,7 +13,7 @@ from collections import OrderedDict
 import numpy as np
 import torch
 
-from src.utils import bool_flag, initialize_exp
+from src.utils import bool_flag, initialize_exp,  write_json
 from src.models import build_model
 from src.trainer import Trainer
 from src.evaluation import Evaluator
@@ -59,6 +59,9 @@ parser.add_argument("--dis_optimizer", type=str, default="sgd,lr=0.1", help="Dis
 parser.add_argument("--lr_decay", type=float, default=0.98, help="Learning rate decay (SGD only)")
 parser.add_argument("--min_lr", type=float, default=1e-6, help="Minimum learning rate (SGD only)")
 parser.add_argument("--lr_shrink", type=float, default=0.5, help="Shrink the learning rate if the validation metric decreases (1 to disable)")
+parser.add_argument("--noise", type=float, default=0, help="Variance of the noise to be added to the inputs (0 to disable)")
+
+
 # training refinement
 parser.add_argument("--n_refinement", type=int, default=5, help="Number of refinement iterations (0 to disable the refinement procedure)")
 # dictionary creation parameters (for refinement)
@@ -73,6 +76,8 @@ parser.add_argument("--dico_max_size", type=int, default=0, help="Maximum genera
 parser.add_argument("--src_emb", type=str, default="", help="Reload source embeddings")
 parser.add_argument("--tgt_emb", type=str, default="", help="Reload target embeddings")
 parser.add_argument("--normalize_embeddings", type=str, default="", help="Normalize embeddings before training")
+
+parser.add_argument("--print_grads", type=bool_flag, default=False, help="Print the gradients of the loss")
 
 
 # parse parameters
@@ -93,6 +98,9 @@ assert params.export in ["", "txt", "pth"]
 # build model / trainer / evaluator
 logger = initialize_exp(params)
 src_emb, tgt_emb, mapping, discriminator = build_model(params, True)
+
+
+
 trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
 evaluator = Evaluator(trainer)
 
@@ -111,11 +119,20 @@ if params.adversarial:
         n_words_proc = 0
         stats = {'DIS_COSTS': []}
 
+        iter_counter = 0
+        weights = {}
+        grads = {}
         for n_iter in range(0, params.epoch_size, params.batch_size):
+            iter_counter += 1
 
             # discriminator training
             for _ in range(params.dis_steps):
                 trainer.dis_step(stats)
+                if params.print_grads:
+                    for name, param in trainer.discriminator.named_parameters():
+                        if param.requires_grad:
+                            weights.setdefault(name, []).append(param.data)
+                            grads.setdefault(name, []).append(param.grad)
 
             # mapping training (discriminator fooling)
             n_words_proc += trainer.mapping_step(stats)
@@ -133,6 +150,10 @@ if params.adversarial:
                 n_words_proc = 0
                 for k, _ in stats_str:
                     del stats[k][:]
+
+        if params.print_grads:
+            write_json(os.path.join(params.exp_path, 'weights_{}.json'.format(n_epoch)), weights)
+            write_json(os.path.join(params.exp_path, 'grads_{}.json'.format(n_epoch)), grads)
 
         # embeddings / discriminator evaluation
         to_log = OrderedDict({'n_epoch': n_epoch})
