@@ -502,13 +502,38 @@ def write_json(fname, data):
     outfile.close()
 
 
-def add_random_noise_to_inputs(inputs):
-    noise = torch.randn(inputs.size())
-    return inputs + noise.float()
+def add_gaussian_noise_to_inputs(inputs):
+    """
+    draws from normal distribution with mean 0 and variance 1
+    :param inputs:
+    :return:
+    """
 
-def add_gaussian_noise_to_inputs(inputs, std_dev):
-    noise = np.random.normal(loc=inputs.data, scale=std_dev, size=np.shape(inputs.size()))
-    return inputs + noise.float()
+    noise = to_sparse(torch.randn(inputs.size()))
+    return inputs + noise
 
+
+
+def sample_from_multivariate_gaussian(mean, var=1):
+    """
+    sample independent parameters in a parameterr matrix from a multivariate gaussian centered on mean
+    :param mean: the mean of the gaussian
+    :param var: the variance of the gaussian. default 1
+    :return:
+    """
+    return np.random.multivariate_normal(mean.ravel(), np.identity(mean.ravel().shape[0]) * var).reshape((mean.shape))
+
+
+def to_sparse(x):
+    """ converts dense tensor x to sparse format """
+    x_typename = torch.typename(x).split('.')[-1]
+    sparse_tensortype = getattr(torch.sparse, x_typename)
+
+    indices = torch.nonzero(x)
+    if len(indices.shape) == 0:  # if all elements are zeros
+        return sparse_tensortype(*x.shape)
+    indices = indices.t()
+    values = x[tuple(indices[i] for i in range(indices.shape[0]))]
+    return sparse_tensortype(indices, values, x.size())
 
 

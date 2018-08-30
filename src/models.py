@@ -8,7 +8,7 @@
 import torch
 
 from torch import nn
-from .utils import load_embeddings, normalize_embeddings, add_random_noise_to_inputs, export_noisy_embeddings
+from .utils import load_embeddings, normalize_embeddings, add_gaussian_noise_to_inputs, export_noisy_embeddings
 
 
 class Discriminator(nn.Module):
@@ -54,7 +54,7 @@ def build_model(params, with_dis):
 
     if params.noise != 0:
         # add noise to the inputs
-        _src_emb = add_random_noise_to_inputs(_src_emb)
+        _src_emb = add_gaussian_noise_to_inputs(_src_emb)
         # save the noisy embeddings
         export_noisy_embeddings(_src_emb, params)
 
