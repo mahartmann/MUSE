@@ -45,12 +45,13 @@ def oned_linear_interpolation(m_init, m_final, alpha):
 
 def sample_from_multivariate_gaussian(mean, var=1):
     """
-    sample independent parameters in a parameterr matrix from a multivariate gaussian centered on mean
+    sample independent parameters in a parameter matrix from a multivariate gaussian centered on mean
     :param mean: the mean of the gaussian
     :param var: the variance of the gaussian. default 1
     :return:
     """
-    return np.random.multivariate_normal(mean.ravel(), np.identity(mean.ravel().shape[0]) * var).reshape((mean.shape))
+    mean = mean.numpy()
+    return torch.from_numpy(np.random.multivariate_normal(mean.ravel(), np.identity(mean.ravel().shape[0]) * var).reshape((mean.shape)))
 
 
 # main
@@ -143,7 +144,7 @@ for alpha in np.arange(0, 1+params.interpolation_step_size, params.interpolation
         for n_iter in range(0, params.epoch_size, params.batch_size):
             loss = trainer.compute_loss()
             losses.append(loss.cpu().data.numpy())
-            print(losses)
+            #print(losses)
         logger.info('Discriminator loss {}: {}\n'.format(m, np.mean(losses)))
 
     evaluator = Evaluator(trainer)
