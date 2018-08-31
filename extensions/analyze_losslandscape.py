@@ -150,14 +150,14 @@ for alpha in np.arange(0, 1+params.interpolation_step_size, params.interpolation
             #print(losses)
         logger.info('Discriminator loss {}: {}\n'.format(m, np.mean(losses)))
 
-    evaluator = Evaluator(trainer)
+        evaluator = Evaluator(trainer)
 
-    # run evaluations
-    to_log = OrderedDict({'n_iter': 0})
-    evaluator.monolingual_wordsim(to_log)
-    # evaluator.monolingual_wordanalogy(to_log)
-    if params.tgt_lang:
-        evaluator.crosslingual_wordsim(to_log)
-        evaluator.word_translation(to_log)
-        #evaluator.sent_translation(to_log)
-        evaluator.dist_mean_cosine(to_log)
+        # run evaluations
+        to_log = OrderedDict({'n_iter': 0})
+        evaluator.monolingual_wordsim(to_log)
+        # evaluator.monolingual_wordanalogy(to_log)
+        if params.tgt_lang:
+            evaluator.crosslingual_wordsim(to_log)
+            evaluator.word_translation(to_log)
+            #evaluator.sent_translation(to_log)
+            evaluator.dist_mean_cosine(to_log)
