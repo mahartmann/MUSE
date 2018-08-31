@@ -38,6 +38,8 @@ parser.add_argument("--emb_dim", type=int, default=300, help="Embedding dimensio
 parser.add_argument("--max_vocab", type=int, default=200000, help="Maximum vocabulary size (-1 to disable)")
 # mapping
 parser.add_argument("--map_id_init", type=bool_flag, default=True, help="Initialize the mapping as an identity matrix")
+parser.add_argument("--map_init", type=str, help="Initialize the generator with this mapping")
+parser.add_argument("--map_noise_init", type=float, default=0, help="Variance of the Gaussian noise to be added to the initialization of the generator mapping. 0 to disable.")
 parser.add_argument("--map_beta", type=float, default=0.001, help="Beta for orthogonalization")
 # discriminator
 parser.add_argument("--dis_layers", type=int, default=2, help="Discriminator layers")
@@ -102,6 +104,7 @@ src_emb, tgt_emb, mapping, discriminator = build_model(params, True)
 
 
 trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
+
 evaluator = Evaluator(trainer)
 
 

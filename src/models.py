@@ -8,7 +8,7 @@
 import torch
 
 from torch import nn
-from .utils import load_embeddings, normalize_embeddings, add_gaussian_noise_to_inputs, export_noisy_embeddings
+from .utils import load_embeddings, normalize_embeddings, add_gaussian_noise, export_noisy_embeddings, export_init_mapping
 
 
 class Discriminator(nn.Module):
@@ -74,6 +74,16 @@ def build_model(params, with_dis):
     mapping = nn.Linear(params.emb_dim, params.emb_dim, bias=False)
     if getattr(params, 'map_id_init', True):
         mapping.weight.data.copy_(torch.diag(torch.ones(params.emb_dim)))
+    else:
+        # load the optimal mapping
+        mapping_init = torch.load(params.map_init)
+        # add noise with variance var
+        if params.map_init_noise > 0:
+            mapping_init = add_gaussian_noise(mapping_init, params, var=params.map_init_noise)
+            # save the noise mapping to disk
+            export_init_mapping(mapping_init, params)
+
+        mapping.weight.data.copy_(torch.from_numpy(mapping_init))
 
     # discriminator
     discriminator = Discriminator(params) if with_dis else None

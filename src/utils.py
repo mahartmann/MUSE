@@ -496,27 +496,31 @@ def export_noisy_embeddings(src_emb, params):
         torch.save({'dico': params.src_dico, 'vectors': src_emb}, src_path)
 
 
+def export_init_mapping(mapping, params):
+    path = os.path.join(params.exp_path, 'init_mapping_noise{}.pth'.format(params.map_init_noise))
+    torch.save(mapping, path)
+
+
 def write_json(fname, data):
     with open(fname, 'w') as outfile:
         json.dump(data, outfile)
     outfile.close()
 
 
-def add_gaussian_noise_to_inputs(inputs, params):
+
+def add_gaussian_noise(inputs, var=1):
     """
-    draws from normal distribution with mean 0 and variance 1
-    :param inputs:
+    sample independent parameters in a parameter matrix from a multivariate gaussian centered on mean
+    :param mean: the mean of the gaussian
+    :param var: the variance of the gaussian. default 1
     :return:
     """
+    mean = np.zeros((inputs.shape))
+    sampled = []
+    for row in mean:
+        sampled.append(np.random.multivariate_normal(row.ravel(), np.identity(row.ravel().shape[0]) * var).reshape((row.shape)))
 
-    #noise = to_sparse(torch.randn(inputs.size()))
-    noise = torch.randn(inputs.size())
-    noise = noise.cuda() if (params.cuda) else noise
-    return inputs + noise
-
-
-
-
+    return torch.from_numpy(inputs + np.array(sampled))
 
 
 def to_sparse(x):
