@@ -51,7 +51,10 @@ def sample_from_multivariate_gaussian(mean, var=1):
     :return:
     """
     mean = mean.numpy()
-    return torch.from_numpy(np.random.multivariate_normal(mean.ravel(), np.identity(mean.ravel().shape[0]) * var).reshape((mean.shape)))
+    sampled = []
+    for row in mean:
+        sampled.append(np.random.multivariate_normal(row.ravel(), np.identity(row.ravel().shape[0]) * var).reshape((row.shape)))
+    return torch.from_numpy(np.array(sampled))
 
 
 # main
