@@ -142,7 +142,7 @@ for alpha in np.arange(0, 1+params.interpolation_step_size, params.interpolation
         losses = []
         for n_iter in range(0, params.epoch_size, params.batch_size):
             loss = trainer.compute_loss()
-            losses.append(loss.cpu().detach().numpy())
+            losses.append(loss.data.numpy())
             print(losses)
         logger.info('Discriminator loss {}: {}\n'.format(m, np.mean(losses)))
 
