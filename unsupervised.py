@@ -107,6 +107,13 @@ trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
 
 evaluator = Evaluator(trainer)
 
+# if we initialize the generator from a supervised mapping, evaluate before training for sanity check
+if not params.map_id_init:
+    # embeddings / discriminator evaluation
+    to_log = OrderedDict({'n_epoch': -1})
+    evaluator.all_eval(to_log)
+    evaluator.eval_dis(to_log)
+
 
 """
 Learning loop for Adversarial Training
