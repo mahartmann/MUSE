@@ -78,8 +78,8 @@ def build_model(params, with_dis):
         # load the optimal mapping
         mapping_init = torch.load(params.map_init)
         # add noise with variance var
-        if params.map_init_noise > 0:
-            mapping_init = add_gaussian_noise(mapping_init, params, var=params.map_init_noise)
+        if params.map_noise_init > 0:
+            mapping_init = add_gaussian_noise(mapping_init, var=params.map_noise_init)
             # save the noise mapping to disk
             export_init_mapping(mapping_init, params)
 

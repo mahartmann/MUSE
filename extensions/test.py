@@ -1,13 +1,15 @@
 import torch
 import numpy as np
 from torch import tensor
+import matplotlib.pyplot as plt
 
 
 if __name__=="__main__":
-    a = torch.nn.Linear(3,3)
-    print(a.weight.detach().numpy())
-    i = np.array([[1,2,3], [3,4,5], [4,5,6]])
-    t = torch.from_numpy(i)
-    print(t.weight.detach.numpy())
-    a.weight = torch.nn.Parameter(t)
-    print(a.weight.detach().numpy())
+    fig, ax = plt.subplots()
+    x = [1,2]
+    y = [1,2]
+    labels = ['1', '2']
+    ax.scatter([1,2], [1,2])
+    for i , label in enumerate(labels):
+        ax.annotate(labels[i], (x[i], y[i]))
+    plt.show()
