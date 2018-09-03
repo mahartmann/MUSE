@@ -497,7 +497,7 @@ def export_noisy_embeddings(src_emb, params):
 
 
 def export_init_mapping(mapping, params):
-    path = os.path.join(params.exp_path, 'init_mapping_noise{}.pth'.format(params.map_init_noise))
+    path = os.path.join(params.exp_path, 'init_mapping_noise{}.pth'.format(params.map_noise_init))
     torch.save(mapping, path)
 
 
