@@ -520,7 +520,7 @@ def add_gaussian_noise(inputs, var=1):
     for row in mean:
         sampled.append(np.random.multivariate_normal(row.ravel(), np.identity(row.ravel().shape[0]) * var).reshape((row.shape)))
 
-    return torch.from_numpy(inputs + np.array(sampled))
+    return inputs + np.array(sampled)
 
 
 def to_sparse(x):
