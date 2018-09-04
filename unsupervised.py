@@ -138,6 +138,7 @@ if params.adversarial:
             # discriminator training
             for _ in range(params.dis_steps):
                 trainer.dis_step(stats)
+
                 if params.print_grads:
                     for name, param in trainer.discriminator.named_parameters():
                         if param.requires_grad:
@@ -180,7 +181,8 @@ if params.adversarial:
         if trainer.map_optimizer.param_groups[0]['lr'] < params.min_lr:
             logger.info('Learning rate < 1e-6. BREAK.')
             break
-
+    # saving the discriminator parameters
+    trainer.discriminator.save(trainer.params.exp_path)
 
 """
 Learning loop for Procrustes Iterative Refinement
@@ -210,8 +212,7 @@ if params.n_refinement > 0:
         trainer.save_best(to_log, VALIDATION_METRIC)
         logger.info('End of refinement iteration %i.\n\n' % n_iter)
 
-        # saving the discriminator parameters
-        trainer.discriminator.save(trainer.params.exp_path)
+
 
 
 # export embeddings
