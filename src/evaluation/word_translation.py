@@ -152,16 +152,22 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
             path_full_dict = os.path.join(DIC_EVAL_PATH, '%s-%s.txt' % (lang1, lang2))
             print('Loading full dictionary...')
             dico_full = load_dictionary(path_full_dict, word2id1, word2id2)
-            #dico_full = dico_full.cuda() if emb1.is_cuda else dico_full
+            dico_full = dico_full.cuda() if emb1.is_cuda else dico_full
             dico_full_reversed = get_tgt2src(dico_full)
             for i, w in enumerate(matching_array):
                 if w.sum() == 0:
                     c += 1
                     # find the gold translation of the word
-                    idx_gold = dico[i,1].item()
+                    if type(dico[i,1])  == int:
+                        idx_gold = dico[i,1]
+                    else:
+                        idx_gold = dico[i,1].item()
                     gold = id2word2[idx_gold]
                     # find the predicted translation of the word
-                    idx_predicted = top_k_matches[i,0].item()
+                    if type(top_k_matches[i,0]) == int:
+                        idx_predicted = top_k_matches[i, 0]
+                    else:
+                        idx_predicted = top_k_matches[i,0].item()
                     predicted = id2word2[idx_predicted]
                     # find the english translations of those words
 
@@ -172,7 +178,11 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                         predicted_trans = [id2word1[i] for i in dico_full_reversed[idx_predicted]]
                     else:
                         predicted_trans = ['NO_TRANSL']
-                    print('{}\t{}\t{}\t{}\t{}\n'.format(id2word1[dico[i,0].item()], gold, ','.join(gold_trans), predicted, ','.join(predicted_trans)))
+                    if type(dico[i,0]) == int:
+                        print('{}\t{}\t{}\t{}\t{}\n'.format(id2word1[dico[i, 0]], gold, ','.join(gold_trans),
+                                                            predicted, ','.join(predicted_trans)))
+                    else:
+                        print('{}\t{}\t{}\t{}\t{}\n'.format(id2word1[dico[i,0].item()], gold, ','.join(gold_trans), predicted, ','.join(predicted_trans)))
             print('Errouneous translations: {}/{}'.format(c, dico.shape[0]))
         _matching = (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches)).sum(1)
         # allow for multiple possible translations
@@ -202,6 +212,9 @@ def get_tgt2src(dico):
     '''
     tgt2src = {}
     for i in dico:
-        tgt2src.setdefault(i[1].item(), []).append(i[0].item())
+        if type(i[1]) == int:
+            tgt2src.setdefault(i[1], []).append(i[0])
+        else:
+            tgt2src.setdefault(i[1].item(), []).append(i[0].item())
     return tgt2src
 
