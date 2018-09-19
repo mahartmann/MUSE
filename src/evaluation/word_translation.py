@@ -136,9 +136,44 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
         raise Exception('Unknown method: "%s"' % method)
 
     results = []
+    # retrieves the 10 top values along the first dimension, [1] accesses the index array, [0] is the array with the values
     top_matches = scores.topk(10, 1, True)[1]
     for k in [1, 5, 10]:
+        c = 0
         top_k_matches = top_matches[:, :k]
+
+        if k==1:
+            matching_array =  (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches))
+            # analyze the words that have no matching
+            id2word2 = reverse_dict(word2id2)
+            id2word1 = reverse_dict(word2id1)
+
+            # load the full dictionary
+            path_full_dict = os.path.join(DIC_EVAL_PATH, '%s-%s.txt' % (lang1, lang2))
+            print('Loading full dictionary...')
+            dico_full = load_dictionary(path_full_dict, word2id1, word2id2)
+            #dico_full = dico_full.cuda() if emb1.is_cuda else dico_full
+            dico_full_reversed = get_tgt2src(dico_full)
+            for i, w in enumerate(matching_array):
+                if w.sum() == 0:
+                    c += 1
+                    # find the gold translation of the word
+                    idx_gold = dico[i,1].item()
+                    gold = id2word2[idx_gold]
+                    # find the predicted translation of the word
+                    idx_predicted = top_k_matches[i,0].item()
+                    predicted = id2word2[idx_predicted]
+                    # find the english translations of those words
+
+
+
+                    gold_trans = [id2word1[i] for i in dico_full_reversed[idx_gold]]
+                    if idx_predicted in dico_full_reversed.keys():
+                        predicted_trans = [id2word1[i] for i in dico_full_reversed[idx_predicted]]
+                    else:
+                        predicted_trans = ['NO_TRANSL']
+                    print('{}\t{}\t{}\t{}\t{}\n'.format(id2word1[dico[i,0].item()], gold, ','.join(gold_trans), predicted, ','.join(predicted_trans)))
+            print('Errouneous translations: {}/{}'.format(c, dico.shape[0]))
         _matching = (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches)).sum(1)
         # allow for multiple possible translations
         matching = {}
@@ -151,3 +186,22 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
         results.append(('precision_at_%i' % k, precision_at_k))
 
     return results
+
+
+def reverse_dict(d):
+    rev_d = {}
+    for key, val in d.items():
+        rev_d[val] = key
+    return rev_d
+
+def get_tgt2src(dico):
+    '''
+    mapping with values in second column as keys and values in first columns as values
+    :param dico:
+    :return:
+    '''
+    tgt2src = {}
+    for i in dico:
+        tgt2src.setdefault(i[1].item(), []).append(i[0].item())
+    return tgt2src
+
