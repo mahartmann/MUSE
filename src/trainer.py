@@ -69,6 +69,9 @@ class Trainer(object):
         # get word embeddings
         src_emb = self.src_emb(Variable(src_ids, volatile=True))
         tgt_emb = self.tgt_emb(Variable(tgt_ids, volatile=True))
+
+        print(type(src_emb))
+
         src_emb = self.mapping(Variable(src_emb.data, volatile=volatile))
         tgt_emb = Variable(tgt_emb.data, volatile=volatile)
 
