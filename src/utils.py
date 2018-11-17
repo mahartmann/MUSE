@@ -519,8 +519,21 @@ def add_gaussian_noise(inputs, var=1):
     sampled = []
     for row in mean:
         sampled.append(np.random.multivariate_normal(row.ravel(), np.identity(row.ravel().shape[0]) * var).reshape((row.shape)))
-
     return inputs + np.array(sampled)
+
+def add_gaussian_noise_to_inputs(inputs, var=1):
+    """
+    add gaussian noise with variance var to the inputs
+    :param mean: the mean of the gaussian
+    :param var: the variance of the gaussian. default 1
+    :return:
+    """
+    mean = inputs.detach().numpy()
+    noise = []
+    for row in mean:
+        noise.append(np.random.multivariate_normal(row.ravel(), np.identity(row.ravel().shape[0]) * var).reshape((row.shape)))
+    modified_inputs = mean + np.array(noise)
+    return torch.from_numpy(modified_inputs).float()
 
 
 def to_sparse(x):

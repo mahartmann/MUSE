@@ -15,7 +15,7 @@ from torch.nn import functional as F
 
 from .utils import get_optimizer, load_embeddings, normalize_embeddings, export_embeddings
 from .utils import clip_parameters
-from .utils import add_gaussian_noise
+from .utils import add_gaussian_noise_to_inputs
 from .dico_builder import build_dictionary
 from .evaluation.word_translation import DIC_EVAL_PATH, load_identical_char_dico, load_dictionary
 
@@ -70,7 +70,6 @@ class Trainer(object):
         src_emb = self.src_emb(Variable(src_ids, volatile=True))
         tgt_emb = self.tgt_emb(Variable(tgt_ids, volatile=True))
 
-        print(type(src_emb))
 
         src_emb = self.mapping(Variable(src_emb.data, volatile=volatile))
         tgt_emb = Variable(tgt_emb.data, volatile=volatile)
@@ -78,8 +77,8 @@ class Trainer(object):
 
         # add instance noise
         if self.params.noise > 0:
-            src_emb = add_gaussian_noise(src_emb, var=self.params.noise**2)
-            tgt_emb = add_gaussian_noise(tgt_emb, var=self.params.noise**2)
+            src_emb = add_gaussian_noise_to_inputs(src_emb, var=self.params.noise**2)
+            tgt_emb = add_gaussian_noise_to_inputs(tgt_emb, var=self.params.noise**2)
 
         # input / target
         x = torch.cat([src_emb, tgt_emb], 0)
