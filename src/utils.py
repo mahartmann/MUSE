@@ -528,7 +528,7 @@ def add_gaussian_noise_to_inputs(inputs, var=1):
     :param var: the variance of the gaussian. default 1
     :return:
     """
-    mean = inputs.detach().numpy()
+    mean = inputs.detach().cpu().numpy()
     noise = []
     for row in mean:
         noise.append(np.random.multivariate_normal(row.ravel(), np.identity(row.ravel().shape[0]) * var).reshape((row.shape)))
