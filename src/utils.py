@@ -18,6 +18,7 @@ import numpy as np
 import torch
 import json
 from torch import optim
+from torch.autograd import Variable
 from logging import getLogger
 
 from .logger import create_logger
@@ -521,6 +522,7 @@ def add_gaussian_noise(inputs, var=1):
         sampled.append(np.random.multivariate_normal(row.ravel(), np.identity(row.ravel().shape[0]) * var).reshape((row.shape)))
     return inputs + np.array(sampled)
 
+'''
 def add_gaussian_noise_to_inputs(inputs, var=1):
     """
     add gaussian noise with variance var to the inputs
@@ -534,6 +536,11 @@ def add_gaussian_noise_to_inputs(inputs, var=1):
         noise.append(np.random.multivariate_normal(row.ravel(), np.identity(row.ravel().shape[0]) * var).reshape((row.shape)))
     modified_inputs = mean + np.array(noise)
     return torch.from_numpy(modified_inputs).float()
+'''
+
+def add_gaussian_noise_to_inputs(ins, mean=0, var=1):
+    noise = Variable(ins.data.new(ins.size()).normal_(mean, std=var**2))
+    return ins + noise
 
 
 def to_sparse(x):
