@@ -74,13 +74,15 @@ class Trainer(object):
         src_emb = self.mapping(Variable(src_emb.data, volatile=volatile))
         tgt_emb = Variable(tgt_emb.data, volatile=volatile)
 
-        src_emb = (src_emb.cuda() if self.params.cuda else src_emb)
-        tgt_emb = (tgt_emb.cuda() if self.params.cuda else tgt_emb)
+
 
         # add instance noise
         if self.params.noise > 0:
             src_emb = add_gaussian_noise_to_inputs(src_emb, var=self.params.noise**2)
             tgt_emb = add_gaussian_noise_to_inputs(tgt_emb, var=self.params.noise**2)
+
+        src_emb = (src_emb.cuda() if self.params.cuda else src_emb)
+        tgt_emb = (tgt_emb.cuda() if self.params.cuda else tgt_emb)
 
         # input / target
         x = torch.cat([src_emb, tgt_emb], 0)
