@@ -14,7 +14,10 @@ def extract_initial_mapping(params, src_embs, trg_embs):
     # mapping can be learned by solving Procrustes
 
     src_indices, trg_indices = build_seed_dictionary(params, src_embs, trg_embs)
-    mapping_init = procrustes(src_embs[src_indices, :], trg_embs[trg_indices, :])
+    src_embs_aligned = src_embs.weight.data[src_indices, :]
+    print(src_embs_aligned.numpy().shape)
+    trg_embs_aligned = trg_embs.weight.data[trg_indices, :]
+    mapping_init = procrustes(src_embs_aligned, trg_embs_aligned)
     return mapping_init
 
 
@@ -24,8 +27,8 @@ def build_seed_dictionary(params, src_embs_torch, trg_embs_torch, csls_neighborh
     :return:
     """
     # normalize embeddings
-    normalize_embeddings(src_embs_torch, params.normalize_embeddings)
-    normalize_embeddings(trg_embs_torch, params.normalize_embeddings)
+    normalize_embeddings(src_embs_torch.weight.data, params.normalize_embeddings)
+    normalize_embeddings(trg_embs_torch.weight.data, params.normalize_embeddings)
 
     src_emb = src_embs_torch.weight.data
     trg_emb = trg_embs_torch.weight.data
@@ -89,7 +92,7 @@ def procrustes(src_embs_aligned, trg_embs_aligned):
     https://en.wikipedia.org/wiki/Orthogonal_Procrustes_problem
     """
 
-    u, s, vt = np.linalg.svd(np.transpose(src_embs_aligned).dot(trg_embs_aligned), full_matrices=False)
+    u, s, vt = np.linalg.svd(np.matmul(np.transpose(src_embs_aligned), trg_embs_aligned), full_matrices=False)
     return u.dot(vt)
 
 
