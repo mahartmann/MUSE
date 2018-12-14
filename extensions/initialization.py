@@ -36,8 +36,10 @@ def build_seed_dictionary(params, src_embs_torch, trg_embs_torch, csls_neighborh
     src_indices = []
     trg_indices = []
 
-    sim_size = min(src_emb.shape[0], trg_emb.shape[0]) if unsupervised_vocab <= 0 else min(src_emb.shape[0], trg_emb.shape[0],
-                                                                                        unsupervised_vocab)
+    #sim_size = min(src_emb.shape[0], trg_emb.shape[0]) if unsupervised_vocab <= 0 else min(src_emb.shape[0], trg_emb.shape[0], unsupervised_vocab)
+    sim_size = min(20000, 20000) if unsupervised_vocab <= 0 else min(src_emb.shape[0],
+                                                                                           trg_emb.shape[0],
+                                                                                           unsupervised_vocab)
     u, s, vt = np.linalg.svd(src_emb[:sim_size], full_matrices=False)
     xsim = (u * s).dot(u.T)
 
