@@ -17,6 +17,7 @@ from src.utils import bool_flag, initialize_exp,  write_json
 from src.models import build_model
 from src.trainer import Trainer
 from src.evaluation import Evaluator
+from extensions.initialization import extract_initial_mapping
 
 
 VALIDATION_METRIC = 'mean_cosine-csls_knn_10-S2T-10000'
@@ -38,7 +39,8 @@ parser.add_argument("--emb_dim", type=int, default=300, help="Embedding dimensio
 parser.add_argument("--max_vocab", type=int, default=200000, help="Maximum vocabulary size (-1 to disable)")
 # mapping
 parser.add_argument("--map_id_init", type=bool_flag, default=True, help="Initialize the mapping as an identity matrix")
-parser.add_argument("--map_init", type=str, help="Initialize the generator with this mapping")
+parser.add_argument("--map_init", type=str, help="Initialize the generator with this mapping. If set to second_order, initialization is the mapping of second order representations\
+                                                 from Artetxe et al. (2018)")
 parser.add_argument("--map_noise_init", type=float, default=0, help="Variance of the Gaussian noise to be added to the initialization of the generator mapping. 0 to disable.")
 parser.add_argument("--map_beta", type=float, default=0.001, help="Beta for orthogonalization")
 # discriminator
@@ -106,6 +108,12 @@ src_emb, tgt_emb, mapping, discriminator = build_model(params, True)
 trainer = Trainer(src_emb, tgt_emb, mapping, discriminator, params)
 
 evaluator = Evaluator(trainer)
+np.random.seed(params.seed)
+
+# init generator parameters with artetxe's methods
+if params.map_init == "second_order":
+    m_init = extract_initial_mapping(params, src_emb, tgt_emb)
+    trainer.set_mapping_weights(torch.from_numpy(m_init))
 
 # if we initialize the generator from a supervised mapping, evaluate before training for sanity check
 if not params.map_id_init:
