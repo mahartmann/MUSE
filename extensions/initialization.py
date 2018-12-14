@@ -6,14 +6,14 @@ from src.utils import load_embeddings, normalize_embeddings
 import argparse
 import torch
 
-def extract_initial_mapping(src_embs, trg_embs):
+def extract_initial_mapping(params, src_embs, trg_embs):
     # compute 2nd order matrices for each embeddings
     # sort the values in each row
     # do neareset neighbor search to determine initial matches
     # modify the identity matrix such that these points will be mapped onto each other
     # mapping can be learned by solving Procrustes
 
-    src_indices, trg_indices = build_seed_dictionary(src_embs, trg_embs)
+    src_indices, trg_indices = build_seed_dictionary(params, src_embs, trg_embs)
     mapping_init = procrustes(src_embs[src_indices, :], trg_embs[trg_indices, :])
     return mapping_init
 
@@ -27,8 +27,8 @@ def build_seed_dictionary(params, src_embs_torch, trg_embs_torch, csls_neighborh
     normalize_embeddings(src_embs_torch, params.normalize_embeddings)
     normalize_embeddings(trg_embs_torch, params.normalize_embeddings)
 
-    src_emb = src_embs_torch.numpy()
-    trg_emb.trg_embs_torch.numpy()
+    src_emb = src_embs_torch.weight.data
+    trg_emb = trg_embs_torch.weight.data
     # Build the seed dictionary
     src_indices = []
     trg_indices = []
