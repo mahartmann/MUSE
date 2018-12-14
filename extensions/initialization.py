@@ -14,8 +14,10 @@ def extract_initial_mapping(params, src_embs, trg_embs):
     # mapping can be learned by solving Procrustes
 
     src_indices, trg_indices = build_seed_dictionary(params, src_embs, trg_embs)
+    #src_indices = (src_indices.cuda() if params.cuda else src_indices)
+    #trg_indices = (trg_indices.cuda() if params.cuda else trg_indices)
+
     src_embs_aligned = src_embs.weight.data[src_indices, :]
-    print(src_embs_aligned.numpy().shape)
     trg_embs_aligned = trg_embs.weight.data[trg_indices, :]
     mapping_init = procrustes(src_embs_aligned, trg_embs_aligned)
     return mapping_init
