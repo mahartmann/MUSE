@@ -23,7 +23,7 @@ def extract_initial_mapping(params, src_embs, trg_embs):
     return mapping_init
 
 
-def build_seed_dictionary(params, src_embs_torch, trg_embs_torch, csls_neighborhood=1, direction='forward', unsupervised_vocab=0):
+def build_seed_dictionary(params, src_embs_torch, trg_embs_torch):
     """
     This code is taken from artetxe's vecmap repository
     :return:
@@ -38,10 +38,8 @@ def build_seed_dictionary(params, src_embs_torch, trg_embs_torch, csls_neighborh
     src_indices = []
     trg_indices = []
 
-    #sim_size = min(src_emb.shape[0], trg_emb.shape[0]) if unsupervised_vocab <= 0 else min(src_emb.shape[0], trg_emb.shape[0], unsupervised_vocab)
-    sim_size = min(20000, 20000) if unsupervised_vocab <= 0 else min(src_emb.shape[0],
-                                                                                           trg_emb.shape[0],
-                                                                                           unsupervised_vocab)
+    sim_size = min(src_emb.shape[0], trg_emb.shape[0]) if params.init_vocab <= 0 else min(src_emb.shape[0], trg_emb.shape[0], params.init_vocab)
+    #sim_size = min(20000, 20000) if unsupervised_vocab <= 0 else min(src_emb.shape[0],trg_emb.shape[0], unsupervised_vocab)
     u, s, vt = np.linalg.svd(src_emb[:sim_size], full_matrices=False)
     xsim = (u * s).dot(u.T)
 
@@ -52,17 +50,17 @@ def build_seed_dictionary(params, src_embs_torch, trg_embs_torch, csls_neighborh
     zsim.sort(axis=1)
     sim = xsim.dot(zsim.T)
 
-    if csls_neighborhood > 0:
-        knn_sim_fwd = topk_mean(sim, k=csls_neighborhood)
-        knn_sim_bwd = topk_mean(sim.T, k=csls_neighborhood)
+    if params.csls_neighborhood > 0:
+        knn_sim_fwd = topk_mean(sim, k=params.csls_neighborhood)
+        knn_sim_bwd = topk_mean(sim.T, k=params.csls_neighborhood)
         sim -= knn_sim_fwd[:, np.newaxis] / 2 + knn_sim_bwd / 2
-    if direction == 'forward':
+    if params.direction == 'forward':
         src_indices = np.arange(sim_size)
         trg_indices = sim.argmax(axis=1)
-    elif direction == 'backward':
+    elif params.direction == 'backward':
         src_indices = sim.argmax(axis=0)
         trg_indices = np.arange(sim_size)
-    elif direction == 'union':
+    elif params.direction == 'union':
         src_indices = np.concatenate((np.arange(sim_size), sim.argmax(axis=0)))
         trg_indices = np.concatenate((sim.argmax(axis=1), np.arange(sim_size)))
     del xsim, zsim, sim

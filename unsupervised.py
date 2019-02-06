@@ -41,6 +41,9 @@ parser.add_argument("--max_vocab", type=int, default=200000, help="Maximum vocab
 parser.add_argument("--map_id_init", type=bool_flag, default=True, help="Initialize the mapping as an identity matrix")
 parser.add_argument("--map_init", type=str, help="Initialize the generator with this mapping. If set to second_order, initialization is the mapping of second order representations\
                                                  from Artetxe et al. (2018)")
+parser.add_argument("--direction", type=str, default='union', help="Direction of similarity matching in Artetxe's init method")
+parser.add_argument("--init_vocab", type=int, default=4000, help="Number of words considered in Artetxe's init method")
+parser.add_argument("--csls_neighborhood", type=int, default=10, help="Number of neighbors for Artetxe s init methods")
 parser.add_argument("--map_noise_init", type=float, default=0, help="Variance of the Gaussian noise to be added to the initialization of the generator mapping. 0 to disable.")
 parser.add_argument("--map_beta", type=float, default=0.001, help="Beta for orthogonalization")
 # discriminator
