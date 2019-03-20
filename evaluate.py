@@ -34,6 +34,10 @@ parser.add_argument("--max_vocab", type=int, default=200000, help="Maximum vocab
 parser.add_argument("--emb_dim", type=int, default=300, help="Embedding dimension")
 parser.add_argument("--normalize_embeddings", type=str, default="", help="Normalize embeddings before training")
 
+parser.add_argument("--print", type=bool_flag, default=False, help="Run on GPU")
+
+
+
 
 # parse parameters
 params = parser.parse_args()
@@ -56,6 +60,6 @@ evaluator.monolingual_wordsim(to_log)
 # evaluator.monolingual_wordanalogy(to_log)
 if params.tgt_lang:
     evaluator.crosslingual_wordsim(to_log)
-    evaluator.word_translation(to_log)
+    evaluator.word_translation(to_log, print=params.print)
     evaluator.sent_translation(to_log)
     # evaluator.dist_mean_cosine(to_log)

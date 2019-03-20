@@ -80,7 +80,7 @@ def load_dictionary(path, word2id1, word2id2):
     return dico
 
 
-def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, method, dico_eval):
+def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, method, dico_eval, print=False):
     """
     Given source and target word embeddings, and a dictionary,
     evaluate the translation accuracy using the precision@k.
@@ -142,7 +142,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
         c = 0
         top_k_matches = top_matches[:, :k]
 
-        if k==1:
+        if k==1 and print:
             matching_array =  (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches))
             # analyze the words that have no matching
             id2word2 = reverse_dict(word2id2)
@@ -150,7 +150,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
 
             # load the full dictionary
             path_full_dict = os.path.join(DIC_EVAL_PATH, '%s-%s.txt' % (lang1, lang2))
-            print('Loading full dictionary...')
+            logger.info('Loading full dictionary...')
             dico_full = load_dictionary(path_full_dict, word2id1, word2id2)
             dico_full = dico_full.cuda() if emb1.is_cuda else dico_full
             dico_full_reversed = get_tgt2src(dico_full)
@@ -179,11 +179,11 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                     else:
                         predicted_trans = ['NO_TRANSL']
                     if type(dico[i,0]) == int:
-                        print('{}\t{}\t{}\t{}\t{}\n'.format(id2word1[dico[i, 0]], gold, ','.join(gold_trans),
+                        logger.info('{}\t{}\t{}\t{}\t{}\n'.format(id2word1[dico[i, 0]], gold, ','.join(gold_trans),
                                                             predicted, ','.join(predicted_trans)))
                     else:
-                        print('{}\t{}\t{}\t{}\t{}\n'.format(id2word1[dico[i,0].item()], gold, ','.join(gold_trans), predicted, ','.join(predicted_trans)))
-            print('Errouneous translations: {}/{}'.format(c, dico.shape[0]))
+                        logger.info('{}\t{}\t{}\t{}\t{}\n'.format(id2word1[dico[i,0].item()], gold, ','.join(gold_trans), predicted, ','.join(predicted_trans)))
+            logger.info('Errouneous translations: {}/{}'.format(c, dico.shape[0]))
         _matching = (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches)).sum(1)
         # allow for multiple possible translations
         matching = {}
