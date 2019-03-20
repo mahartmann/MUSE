@@ -80,7 +80,7 @@ def load_dictionary(path, word2id1, word2id2):
     return dico
 
 
-def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, method, dico_eval, print=False):
+def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, method, dico_eval, print=False, result_path=''):
     """
     Given source and target word embeddings, and a dictionary,
     evaluate the translation accuracy using the precision@k.
@@ -184,7 +184,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                                                                 predicted, ','.join(predicted_trans)))
                     else:
                         f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(w.sum(), id2word1[dico[i,0].item()], gold, ','.join(gold_trans), predicted, ','.join(predicted_trans)))
-            f.write('Errouneous translations: {}/{}'.format(c, dico.shape[0]))
+                f.write('Errouneous translations: {}/{}'.format(c, dico.shape[0]))
             f.close()
         _matching = (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches)).sum(1)
         # allow for multiple possible translations
