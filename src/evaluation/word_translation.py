@@ -154,7 +154,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
             dico_full = load_dictionary(path_full_dict, word2id1, word2id2)
             dico_full = dico_full.cuda() if emb1.is_cuda else dico_full
             dico_full_reversed = get_tgt2src(dico_full)
-            with open('translations.txt', 'w') as f:
+            with open(os.path.join(result_path, 'translations.txt'), 'w') as f:
                 for i, w in enumerate(matching_array):
                     if w.sum() == 0:
                         c += 1
