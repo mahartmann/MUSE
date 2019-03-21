@@ -178,7 +178,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                 transls.setdefault(tok, {}).setdefault('predictions', set()).add(predicted)
                 # find the english translations of those words
 
-                gold_trans = set([id2word1[i] if i in id2word1.keys() else 'NOT_FOUND' for i in dico_full_reversed[idx_gold] ])
+                gold_trans = set([id2word1[i] if i in id2word1.keys() and idx_gold in dico_full_reversed.keys() else 'NOT_FOUND' for i in dico_full_reversed[idx_gold] ])
                 transls.setdefault(tok, {}).setdefault('gold_transls', set()).update(gold_trans)
                 if idx_predicted in dico_full_reversed.keys():
                     predicted_trans = set([id2word1[i] for i in dico_full_reversed[idx_predicted]])
