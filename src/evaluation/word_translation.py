@@ -80,7 +80,7 @@ def load_dictionary(path, word2id1, word2id2):
     return dico
 
 
-def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, method, dico_eval, print=False, result_path=''):
+def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, method, dico_eval, print_trans=False, result_path=''):
     """
     Given source and target word embeddings, and a dictionary,
     evaluate the translation accuracy using the precision@k.
@@ -142,7 +142,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
         c = 0
         top_k_matches = top_matches[:, :k]
 
-        if k==1 and print:
+        if k==1 and print_trans:
             matching_array =  (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches))
             # analyze the words that have no matching
             id2word2 = reverse_dict(word2id2)
@@ -177,7 +177,8 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                 predicted = id2word2[idx_predicted]
                 transls.setdefault(tok, {}).setdefault('predictions', set()).add(predicted)
                 # find the english translations of those words
-
+                print(id2word1[i])
+                print(dico_full_reversed[idx_gold])
                 gold_trans = set([id2word1[i] if i in id2word1.keys() and idx_gold in dico_full_reversed.keys() else 'NOT_FOUND' for i in dico_full_reversed[idx_gold] ])
                 transls.setdefault(tok, {}).setdefault('gold_transls', set()).update(gold_trans)
                 if idx_predicted in dico_full_reversed.keys():
