@@ -104,7 +104,7 @@ class Evaluator(object):
         to_log['ws_crosslingual_scores'] = ws_crosslingual_scores
         to_log.update({'src_tgt_' + k: v for k, v in src_tgt_ws_scores.items()})
 
-    def word_translation(self, to_log, print=False, result_path=''):
+    def word_translation(self, to_log, print_trans=False, result_path=''):
         """
         Evaluation on word translation.
         """
@@ -118,7 +118,7 @@ class Evaluator(object):
                 self.tgt_dico.lang, self.tgt_dico.word2id, tgt_emb,
                 method=method,
                 dico_eval=self.params.dico_eval,
-                print=print, result_path=result_path
+                print_trans=print_trans, result_path=result_path
             )
             to_log.update([('%s-%s' % (k, method), v) for k, v in results])
 

@@ -60,6 +60,6 @@ evaluator.monolingual_wordsim(to_log)
 # evaluator.monolingual_wordanalogy(to_log)
 if params.tgt_lang:
     evaluator.crosslingual_wordsim(to_log)
-    evaluator.word_translation(to_log, print=params.print, result_path=params.exp_path)
+    evaluator.word_translation(to_log, print_trans=params.print, result_path=params.exp_path)
     evaluator.sent_translation(to_log)
     # evaluator.dist_mean_cosine(to_log)
