@@ -25,25 +25,28 @@ def get_candidates(emb1, emb2, params):
 
     # number of source words to consider
     n_src = emb1.size(0)
+
     if params.dico_max_rank > 0 and not params.dico_method.startswith('invsm_beta_'):
-        n_src = params.dico_max_rank
+        n_src = min(params.dico_max_rank, n_src)
 
     # nearest neighbors
     if params.dico_method == 'nn':
 
         # for every source word
         for i in range(0, n_src, bs):
-
             # compute target words scores
             scores = emb2.mm(emb1[i:min(n_src, i + bs)].transpose(0, 1)).transpose(0, 1)
             best_scores, best_targets = scores.topk(2, dim=1, largest=True, sorted=True)
-
             # update scores / potential targets
             all_scores.append(best_scores.cpu())
             all_targets.append(best_targets.cpu())
 
         all_scores = torch.cat(all_scores, 0)
         all_targets = torch.cat(all_targets, 0)
+
+        #print('all_scores: {}'.format(all_scores))
+
+
 
     # inverted softmax
     elif params.dico_method.startswith('invsm_beta_'):
@@ -87,6 +90,7 @@ def get_candidates(emb1, emb2, params):
         for i in range(0, n_src, bs):
 
             # compute target words scores
+
             scores = emb2.mm(emb1[i:min(n_src, i + bs)].transpose(0, 1)).transpose(0, 1)
             scores.mul_(2)
             scores.sub_(average_dist1[i:min(n_src, i + bs)][:, None] + average_dist2[None, :])
@@ -104,6 +108,7 @@ def get_candidates(emb1, emb2, params):
         all_targets[:, 0].unsqueeze(1)
     ], 1)
 
+
     # sanity check
     assert all_scores.size() == all_pairs.size() == (n_src, 2)
 
@@ -111,6 +116,7 @@ def get_candidates(emb1, emb2, params):
     diff = all_scores[:, 0] - all_scores[:, 1]
     reordered = diff.sort(0, descending=True)[1]
     all_scores = all_scores[reordered]
+
     all_pairs = all_pairs[reordered]
 
     # max dico words rank
