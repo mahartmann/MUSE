@@ -80,7 +80,7 @@ print(d)
 
 with codecs.open(params.outfile, 'w', 'utf-8') as f:
     for src, trg in d[:params.num_seeds, :]:
-        print(trainer.src_dico.id2word[src], trainer.tgt_dico.id2word[trg])
+        #print(trainer.src_dico.id2word[src], trainer.tgt_dico.id2word[trg])
         f.write('{} {}\n'.format(trainer.src_dico.id2word[src], trainer.tgt_dico.id2word[trg]))
 f.close()
 
