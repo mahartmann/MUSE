@@ -73,7 +73,7 @@ trainer.set_mapping_weights(weights=loaded_mapping)
 # extract new dico
 trainer.build_dictionary()
 d = trainer.dico
-d = d.numpy()
+d = d.cpu().numpy()
 print(d)
 
 with open(params.outfile, 'w') as f:
