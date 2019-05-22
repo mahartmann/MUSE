@@ -18,6 +18,8 @@ from src.models import build_model
 from src.trainer import Trainer
 from src.evaluation import Evaluator
 
+import codecs
+
 # main
 parser = argparse.ArgumentParser(description='Extraction of dict')
 parser.add_argument("--verbose", type=int, default=2, help="Verbose level (2:debug, 1:info, 0:warning)")
@@ -76,7 +78,7 @@ d = trainer.dico
 d = d.cpu().numpy()
 print(d)
 
-with open(params.outfile, 'w') as f:
+with codecs.open(params.outfile, 'w', 'utf-8') as f:
     for src, trg in d[:params.num_seeds, :]:
         print(trainer.src_dico.id2word[src], trainer.tgt_dico.id2word[trg])
         f.write('{} {}\n'.format(trainer.src_dico.id2word[src], trainer.tgt_dico.id2word[trg]))
