@@ -142,7 +142,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
         c = 0
         top_k_matches = top_matches[:, :k]
         logger.info(print_trans)
-        if k==1 and print_trans:
+        if print_trans:
             logger.info(print_trans)
             matching_array =  (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches))
             # analyze the words that have no matching
@@ -172,11 +172,11 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                 transls.setdefault(tok, {}).setdefault('gold', set()).add(gold)
                 # find the predicted translation of the word
                 if type(top_k_matches[i,0]) == int:
-                    idx_predicted = top_k_matches[i, 0]
+                    idx_predicted = top_k_matches[i, :k]
                 else:
-                    idx_predicted = top_k_matches[i,0].item()
-                predicted = id2word2[idx_predicted]
-                transls.setdefault(tok, {}).setdefault('predictions', set()).add(predicted)
+                    idx_predicted = top_k_matches[i,:k].item()
+                predicted = [id2word2[idx] for idx in idx_predicted]
+                transls.setdefault(tok, {}).setdefault('predictions', []).append(predicted)
                 # find the english translations of those words
 
                 gold_trans = set([id2word1[i] if i in id2word1.keys() and idx_gold in dico_full_reversed.keys() else 'NOT_FOUND' for i in dico_full_reversed[idx_gold] ])
@@ -187,12 +187,12 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                     predicted_trans = set(['NO_TRANSL'])
                 transls.setdefault(tok, {}).setdefault('predicted_transls', set()).update(predicted_trans)
 
-            with open(os.path.join(result_path, 'translations.txt'), 'w') as f:
+            with open(os.path.join(result_path, 'translations_k{}.txt'.format(k)), 'w') as f:
                 for tok, d in transls.items():
                     f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(np.max(d['matches']),
                                                               tok,
                                                               ','.join(list(d['gold'])),
-                                                              ','.join(list(d['gold_transls'])),
+                                                              '#'.join(list(d['gold_transls'])),
                                                               ','.join(list(d['predictions'])),
                                                               ','.join(list(d['predicted_transls']))))
             f.close()
