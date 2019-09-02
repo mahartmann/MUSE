@@ -173,9 +173,11 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                 # find the predicted translation of the word
                 if type(top_k_matches[i,0]) == int:
                     idx_predicted = top_k_matches[i, :k]
+                    predicted = [id2word2[idx] for idx in idx_predicted]
                 else:
-                    idx_predicted = top_k_matches[i].item()[:k]
-                predicted = [id2word2[idx] for idx in idx_predicted]
+                    idx_predicted = top_k_matches[i, :k]
+                    predicted = [id2word2[idx.item()] for idx in idx_predicted]
+                
                 transls.setdefault(tok, {}).setdefault('predictions', []).append(predicted)
                 # find the english translations of those words
 
