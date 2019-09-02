@@ -55,6 +55,8 @@ parser.add_argument("--src_emb", type=str, default='', help="Reload source embed
 parser.add_argument("--tgt_emb", type=str, default='', help="Reload target embeddings")
 parser.add_argument("--normalize_embeddings", type=str, default="", help="Normalize embeddings before training")
 
+parser.add_argument("--print_trans", type=bool_flag, default=False, help="print predictions")
+
 
 # parse parameters
 params = parser.parse_args()
@@ -97,7 +99,7 @@ for n_iter in range(params.n_refinement + 1):
 
     # embeddings evaluation
     to_log = OrderedDict({'n_iter': n_iter})
-    evaluator.all_eval(to_log)
+    evaluator.all_eval(to_log, print_trans=params.print_predictions)
 
     # JSON log / save best model / end of epoch
     logger.info("__log__:%s" % json.dumps(to_log))

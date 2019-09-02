@@ -209,13 +209,13 @@ class Evaluator(object):
                         % (dico_method, _params.dico_build, dico_max_size, mean_cosine))
             to_log['mean_cosine-%s-%s-%i' % (dico_method, _params.dico_build, dico_max_size)] = mean_cosine
 
-    def all_eval(self, to_log):
+    def all_eval(self, to_log, print_trans=False):
         """
         Run all evaluations.
         """
         self.monolingual_wordsim(to_log)
         self.crosslingual_wordsim(to_log)
-        self.word_translation(to_log)
+        self.word_translation(to_log, print_trans=print_trans)
         self.sent_translation(to_log)
         self.dist_mean_cosine(to_log)
 
@@ -223,7 +223,8 @@ class Evaluator(object):
         """
         Evaluate discriminator predictions and accuracy.
         """
-        bs = 128
+        #bs = 128
+        bs = 16
         src_preds = []
         tgt_preds = []
 
