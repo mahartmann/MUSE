@@ -143,6 +143,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
         top_k_matches = top_matches[:, :k]
         logger.info(print_trans)
         if k==1 and print_trans:
+            logger.info(print_trans)
             matching_array =  (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches))
             # analyze the words that have no matching
             id2word2 = reverse_dict(word2id2)

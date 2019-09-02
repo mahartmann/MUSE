@@ -99,7 +99,7 @@ for n_iter in range(params.n_refinement + 1):
 
     # embeddings evaluation
     to_log = OrderedDict({'n_iter': n_iter})
-    evaluator.all_eval(to_log, print_trans=params.print_trans)
+    evaluator.all_eval(to_log, print_trans=params.print_trans, result_path=trainer.params.exp_path)
 
     # JSON log / save best model / end of epoch
     logger.info("__log__:%s" % json.dumps(to_log))
