@@ -177,7 +177,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                 else:
                     idx_predicted = top_k_matches[i, :k]
                     predicted = [id2word2[idx.item()] for idx in idx_predicted]
-                
+
                 transls.setdefault(tok, {}).setdefault('predictions', []).append(predicted)
                 # find the english translations of those words
 
@@ -195,7 +195,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                                                               tok,
                                                               ','.join(list(d['gold'])),
                                                               '#'.join(list(d['gold_transls'])),
-                                                              ','.join(list(d['predictions'])),
+                                                              ','.join(d['predictions']),
                                                               ','.join(list(d['predicted_transls']))))
             f.close()
         _matching = (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches)).sum(1)
