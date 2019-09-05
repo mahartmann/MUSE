@@ -85,6 +85,7 @@ parser.add_argument("--tgt_emb", type=str, default="", help="Reload target embed
 parser.add_argument("--normalize_embeddings", type=str, default="", help="Normalize embeddings before training")
 
 parser.add_argument("--print_grads", type=bool_flag, default=False, help="Print the gradients of the loss")
+parser.add_argument("--print_trans", type=bool_flag, default=False, help="print predictions")
 
 
 # parse parameters
@@ -216,7 +217,7 @@ if params.n_refinement > 0:
 
         # embeddings evaluation
         to_log = OrderedDict({'n_iter': n_iter})
-        evaluator.all_eval(to_log)
+        evaluator.all_eval(to_log, print_trans=params.print_trans, result_path=trainer.params.exp_path)
 
         # JSON log / save best model / end of epoch
         logger.info("__log__:%s" % json.dumps(to_log))
