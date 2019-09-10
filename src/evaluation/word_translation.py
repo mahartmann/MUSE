@@ -41,7 +41,7 @@ def load_identical_char_dico(word2id1, word2id2):
     return dico
 
 
-def load_dictionary(path, word2id1, word2id2):
+def load_dictionary(path, word2id1, word2id2, print_stats=True):
     """
     Return a torch tensor of size (n, 2) where n is the size of the
     loader dictionary, and sort it by source word frequency.
@@ -55,6 +55,7 @@ def load_dictionary(path, word2id1, word2id2):
 
     with io.open(path, 'r', encoding='utf-8') as f:
         for _, line in enumerate(f):
+            line = line.lower()
             assert line == line.lower()
             word1, word2 = line.rstrip().split()
             if word1 in word2id1 and word2 in word2id2:
@@ -63,12 +64,12 @@ def load_dictionary(path, word2id1, word2id2):
                 not_found += 1
                 not_found1 += int(word1 not in word2id1)
                 not_found2 += int(word2 not in word2id2)
-
-    logger.info("Found %i pairs of words in the dictionary (%i unique). "
-                "%i other pairs contained at least one unknown word "
-                "(%i in lang1, %i in lang2)"
-                % (len(pairs), len(set([x for x, _ in pairs])),
-                   not_found, not_found1, not_found2))
+    if print_stats is True:
+        logger.info("Found %i pairs of words in the dictionary (%i unique). "
+                    "%i other pairs contained at least one unknown word "
+                    "(%i in lang1, %i in lang2)"
+                    % (len(pairs), len(set([x for x, _ in pairs])),
+                       not_found, not_found1, not_found2))
 
     # sort the dictionary by source word frequencies
     pairs = sorted(pairs, key=lambda x: word2id1[x[0]])
@@ -143,16 +144,17 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
         top_k_matches = top_matches[:, :k]
         logger.info(print_trans)
         if print_trans:
-            logger.info(print_trans)
+
             matching_array =  (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches))
             # analyze the words that have no matching
             id2word2 = reverse_dict(word2id2)
             id2word1 = reverse_dict(word2id1)
 
             # load the full dictionary
-            path_full_dict = os.path.join(DIC_EVAL_PATH, '%s-%s.5000-6500.txt' % (lang1, lang2))
+            #path_full_dict = os.path.join(DIC_EVAL_PATH, '%s-%s.txt' % (lang1, lang2), print_stats=False)
+            path_full_dict = path
 
-            dico_full = load_dictionary(path_full_dict, word2id1, word2id2)
+            dico_full = load_dictionary(path_full_dict, word2id1, word2id2, print_stats=False)
             dico_full = dico_full.cuda() if emb1.is_cuda else dico_full
             dico_full_reversed = get_tgt2src(dico_full)
             transls = {}
