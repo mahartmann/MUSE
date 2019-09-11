@@ -190,6 +190,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                 else:
                     predicted_trans = set(['NO_TRANSL'])
 
+                """
                 # decode to unicode if necessary
                 predicted_trans_unicode = set()
                 for elm in predicted_trans:
@@ -197,16 +198,17 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                     #if type(elm) == str:
                     #    elm = elm.encode('utf-8').decode('utf-8')
                     predicted_trans_unicode.add(elm)
-                transls.setdefault(tok, {}).setdefault('predicted_transls', set()).update(predicted_trans_unicode)
+                """
+                transls.setdefault(tok, {}).setdefault('predicted_transls', set()).update(predicted_trans)
 
-            with open(os.path.join(result_path, 'translations_k{}.txt'.format(k)), 'w') as f:
+            with open(os.path.join(result_path, 'translations_k{}.txt'.format(k)), 'w', encoding='utf-8') as f:
                 for tok, d in transls.items():
                     f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(np.max(d['matches']),
                                                               tok,
                                                               ','.join(list(d['gold'])),
                                                               '#'.join(list(d['gold_transls'])),
                                                               ','.join(d['predictions']),
-                                                              ','.join(list(d['predicted_transls'])).encode('utf-8')))
+                                                              ','.join(list(d['predicted_transls']))))
             f.close()
         _matching = (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches)).sum(1)
         # allow for multiple possible translations
