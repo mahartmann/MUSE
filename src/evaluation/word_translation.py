@@ -204,7 +204,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                         f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(np.max(d['matches']),
                                                               tok,
                                                               gold,
-                                                              ','.join(d['gold_transls'])[i],
+                                                              ','.join(d['gold_transls'][i]),
                                                               ','.join(d['predictions'][i]),
                                                               ','.join(d['predicted_transls'][i])))
             f.close()
