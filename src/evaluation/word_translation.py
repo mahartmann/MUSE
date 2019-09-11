@@ -189,7 +189,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                 predicted_trans=set()
                 for i in idx_predicted:
                     if i in dico_full_reversed.keys():
-                        predicted_trans.add(id2word1[dico_full_reversed[i]])
+                        predicted_trans.add('#'.join(id2word1[idx] for idx in dico_full_reversed[i]))
                     else:
                         predicted_trans.add('NO_TRANSL')
 
