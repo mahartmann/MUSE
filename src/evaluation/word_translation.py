@@ -189,7 +189,15 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                     predicted_trans = set([id2word1[i] for i in dico_full_reversed[idx_predicted]])
                 else:
                     predicted_trans = set(['NO_TRANSL'])
-                transls.setdefault(tok, {}).setdefault('predicted_transls', set()).update(predicted_trans)
+
+                # decode to unicode if necessary
+                predicted_trans_unicode = set()
+                for elm in predicted_trans:
+                    logger.info(type(elm))
+                    if type(elm) == str:
+                        elm = elm.decode('utf-8')
+                    predicted_trans_unicode.add(elm)
+                transls.setdefault(tok, {}).setdefault('predicted_transls', set()).update(predicted_trans_unicode)
 
             with open(os.path.join(result_path, 'translations_k{}.txt'.format(k)), 'w') as f:
                 for tok, d in transls.items():
