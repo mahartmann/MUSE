@@ -142,7 +142,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
     for k in [1, 5, 10]:
         c = 0
         top_k_matches = top_matches[:, :k]
-        logger.info(print_trans)
+        
         if print_trans:
 
             matching_array =  (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches))
@@ -190,15 +190,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                 else:
                     predicted_trans = set(['NO_TRANSL'])
 
-                """
-                # decode to unicode if necessary
-                predicted_trans_unicode = set()
-                for elm in predicted_trans:
-                    logger.info(type(elm))
-                    #if type(elm) == str:
-                    #    elm = elm.encode('utf-8').decode('utf-8')
-                    predicted_trans_unicode.add(elm)
-                """
+
                 transls.setdefault(tok, {}).setdefault('predicted_transls', set()).update(predicted_trans)
 
             with open(os.path.join(result_path, 'translations_k{}.txt'.format(k)), 'w', encoding='utf-8') as f:
