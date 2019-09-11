@@ -195,7 +195,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                 for elm in predicted_trans:
                     logger.info(type(elm))
                     if type(elm) == str:
-                        elm = elm.encode('utf-8')
+                        elm = elm.encode('utf-8').decode('utf-8')
                     predicted_trans_unicode.add(elm)
                 transls.setdefault(tok, {}).setdefault('predicted_transls', set()).update(predicted_trans_unicode)
 
