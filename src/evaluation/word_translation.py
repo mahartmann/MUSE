@@ -180,11 +180,11 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                     idx_predicted = top_k_matches[i, :k]
                     predicted = [id2word2[idx.item()] for idx in idx_predicted]
 
-                transls.setdefault(tok, {}).setdefault('predictions', []).extend(predicted)
+                transls.setdefault(tok, {}).setdefault('predictions', []).append(predicted)
                 # find the english translations of those words
 
-                gold_trans = set([id2word1[i] if i in id2word1.keys() and idx_gold in dico_full_reversed.keys() else 'NOT_FOUND' for i in dico_full_reversed[idx_gold] ])
-                transls.setdefault(tok, {}).setdefault('gold_transls', set()).update(gold_trans)
+                gold_trans = list(set([id2word1[i] if i in id2word1.keys() and idx_gold in dico_full_reversed.keys() else 'NOT_FOUND' for i in dico_full_reversed[idx_gold] ]))
+                transls.setdefault(tok, {}).setdefault('gold_transls', []).append(gold_trans)
 
                 predicted_trans=set()
                 for i in idx_predicted:
@@ -198,12 +198,13 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
 
             with open(os.path.join(result_path, 'translations_k{}.txt'.format(k)), 'w', encoding='utf-8') as f:
                 for tok, d in transls.items():
-                    f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(np.max(d['matches']),
+                    for i, gold in enumerate(list(d['gold'])):
+                        f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(np.max(d['matches']),
                                                               tok,
-                                                              ','.join(list(d['gold'])),
-                                                              '#'.join(list(d['gold_transls'])),
-                                                              ','.join(d['predictions']),
-                                                              ','.join(d['predicted_transls'])))
+                                                              gold,
+                                                              list(d['gold_transls'])[i],
+                                                              ','.join(d['predictions'][i]),
+                                                              ','.join(d['predicted_transls'][i])))
             f.close()
         _matching = (top_k_matches == dico[:, 1][:, None].expand_as(top_k_matches)).sum(1)
         # allow for multiple possible translations
