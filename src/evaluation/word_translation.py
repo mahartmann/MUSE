@@ -186,15 +186,17 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                 gold_trans = list(set([id2word1[i] if i in id2word1.keys() and idx_gold in dico_full_reversed.keys() else 'NOT_FOUND' for i in dico_full_reversed[idx_gold] ]))
                 transls.setdefault(tok, {}).setdefault('gold_transls', []).append(gold_trans)
 
-                predicted_trans=set()
+                predicted_trans=[]
                 for i in idx_predicted:
+                    if type(i) != int:
+                        i = i.item()
                     if i in dico_full_reversed.keys():
-                        predicted_trans.add('#'.join(id2word1[idx] for idx in dico_full_reversed[i]))
+                        predicted_trans.append('#'.join(id2word1[idx] for idx in dico_full_reversed[i]))
                     else:
-                        predicted_trans.add('NO_TRANSL')
+                        predicted_trans.append('NO_TRANSL')
 
 
-                transls.setdefault(tok, {}).setdefault('predicted_transls', []).append('#'.join(list(predicted_trans)))
+                transls.setdefault(tok, {}).setdefault('predicted_transls', []).append(predicted_trans)
 
             with open(os.path.join(result_path, 'translations_k{}.txt'.format(k)), 'w', encoding='utf-8') as f:
                 for tok, d in transls.items():
@@ -202,7 +204,7 @@ def get_word_translation_accuracy(lang1, word2id1, emb1, lang2, word2id2, emb2, 
                         f.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(np.max(d['matches']),
                                                               tok,
                                                               gold,
-                                                              list(d['gold_transls'])[i],
+                                                              ','.join(d['gold_transls'])[i],
                                                               ','.join(d['predictions'][i]),
                                                               ','.join(d['predicted_transls'][i])))
             f.close()
