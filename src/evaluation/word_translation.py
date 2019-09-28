@@ -61,6 +61,8 @@ def load_dictionary(path, word2id1, word2id2, print_stats=True):
             if word1 in word2id1 and word2 in word2id2:
                 pairs.append((word1, word2))
             else:
+                print(word1)
+                print(word2)
                 not_found += 1
                 not_found1 += int(word1 not in word2id1)
                 not_found2 += int(word2 not in word2id2)
